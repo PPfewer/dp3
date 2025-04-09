@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เมนูบุฟเฟ่ต์</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff;
+      padding: 40px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .menu-item input {
+      width: 60px;
+      padding: 5px;
+      text-align: center;
+    }
+    .summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #10b981;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #059669;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>เลือกเมนูบุฟเฟ่ต์</h2>
+
+  <div class="menu-list" id="menuList">
+    <div class="menu-item">
+      <span>หมูสไลซ์</span>
+      <input type="number" min="0" value="0" data-name="หมูสไลซ์">
+    </div>
+    <div class="menu-item">
+      <span>ไก่หมักซอส</span>
+      <input type="number" min="0" value="0" data-name="ไก่หมักซอส">
+    </div>
+    <div class="menu-item">
+      <span>ปลาหมึก</span>
+      <input type="number" min="0" value="0" data-name="ปลาหมึก">
+    </div>
+    <div class="menu-item">
+      <span>ลูกชิ้นปลา</span>
+      <input type="number" min="0" value="0" data-name="ลูกชิ้นปลา">
+    </div>
+    <div class="menu-item">
+      <span>ผักรวม</span>
+      <input type="number" min="0" value="0" data-name="ผักรวม">
+    </div>
+  </div>
+
+  <div class="summary">
+    <h3>สรุปการสั่ง</h3>
+    <ul id="summaryList"></ul>
+  </div>
+
+  <button onclick="submitOrder()">ยืนยันการสั่ง</button>
+
+  <script>
+    function goToOrder() {
+      const inputs = document.querySelectorAll('#menu-list input');
+      let orders = [];
+
+      inputs.forEach(input => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+          orders.push({
+            name: input.dataset.name,
+            quantity: qty,
+            price: 0  // บุฟเฟ่ต์ = ฟรี ไม่คิดราคารายการ
+          });
+        }
+      });
+
+      sessionStorage.setItem('orders', JSON.stringify(orders));
+      window.location.href = 'order.html';
+    }
+
+    const inputs = document.querySelectorAll('.menu-item input');
+    const summaryList = document.getElementById('summaryList');
+
+    inputs.forEach(input => {
+      input.addEventListener('input', updateSummary);
+    });
+
+    function updateSummary() {
+      summaryList.innerHTML = ''; // เคลียร์รายการก่อน
+      inputs.forEach(input => {
+        const quantity = parseInt(input.value);
+        const name = input.dataset.name;
+        if (quantity > 0) {
+          const li = document.createElement('li');
+          li.textContent = `${name} × ${quantity}`;
+          summaryList.appendChild(li);
+        }
+      });
+    }
+
+    function submitOrder() {
+      const order = [];
+      inputs.forEach(input => {
+        const quantity = parseInt(input.value);
+        if (quantity > 0) {
+          order.push({
+            name: input.dataset.name,
+            quantity: quantity
+          });
+        }
+      });
+
+      if (order.length === 0) {
+        alert("กรุณาเลือกเมนูอย่างน้อย 1 รายการ");
+        return;
+      }
+
+      // เก็บใน sessionStorage เพื่อส่งต่อไปยังหน้า payment หรือ backend
+      sessionStorage.setItem('buffet_order', JSON.stringify(order));
+      alert("บันทึกการสั่งเรียบร้อยแล้ว!");
+      window.location.href = "payment.html"; // ไปหน้าชำระเงินต่อ
+    }
+  </script>
+
+</body>
+</html>
